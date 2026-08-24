@@ -1,0 +1,1 @@
+# FinMate AI - Pages package

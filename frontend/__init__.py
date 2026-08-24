@@ -1,0 +1,1 @@
+# FinMate AI - Frontend package
