@@ -63,14 +63,38 @@ def _ocr_tab() -> None:
         unsafe_allow_html=True,
     )
 
+    # Make the file uploader drop zone taller and easier to drag onto
+    st.markdown(
+        """
+        <style>
+        [data-testid="stFileUploader"] section {
+            padding: 2.5rem 1rem;
+            border: 2px dashed #3DD9B3;
+            border-radius: 12px;
+            background: rgba(61,217,179,0.04);
+        }
+        [data-testid="stFileUploader"] section:hover {
+            background: rgba(61,217,179,0.09);
+            border-color: #3DD9B3;
+        }
+        [data-testid="stFileUploader"] section > div {
+            font-size: 1rem;
+        }
+        [data-testid="stFileUploaderDropzoneInstructions"] {
+            font-size: 0.95rem !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
     uploaded = st.file_uploader(
-        "Drop your screenshot here",
+        "📸 Drag & drop your payment screenshot here, or click Browse",
         type=["jpg", "jpeg", "png"],
-        label_visibility="collapsed",
+        label_visibility="visible",
     )
 
     if not uploaded:
-        _upload_placeholder()
         return
 
     # Read bytes once — st.image() moves the stream cursor,
@@ -336,6 +360,11 @@ def _save_expense(
                 f"(ID #{result.get('id', '?')})"
             )
             st.balloons()
+        elif result.get("duplicate"):
+            st.warning(
+                f"⚠️ This expense looks like a duplicate and was not saved. "
+                f"{result.get('message', '')}"
+            )
         else:
             st.error(f"Could not save expense: {result.get('message', 'Unknown error')}")
     except Exception as e:

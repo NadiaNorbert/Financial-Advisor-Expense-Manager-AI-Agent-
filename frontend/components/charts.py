@@ -308,7 +308,7 @@ def goal_gauge(name: str, current: float, target: float) -> go.Figure:
     ))
 
     fig.update_layout(
-        **_LAYOUT_BASE,
+        **{k: v for k, v in _LAYOUT_BASE.items() if k != "margin"},
         height=220,
         margin=dict(l=24, r=24, t=40, b=12),
     )

@@ -326,11 +326,21 @@ def extract_expense_from_image(image_path: str | Path) -> dict:
 
 def _gemini_vision_ocr(image_path: Path) -> dict:
     """Use Google Gemini Vision to extract expense fields from an image."""
+    import time
+    import os
+    from dotenv import load_dotenv
     from google import genai
     from google.genai import types
-    from backend.config import GOOGLE_API_KEY, GOOGLE_MODEL
 
-    client = genai.Client(api_key=GOOGLE_API_KEY)
+    # Re-read credentials fresh (module-level constants may be stale in Streamlit)
+    load_dotenv(Path(__file__).resolve().parent.parent.parent / ".env", override=True)
+    api_key = os.environ.get("GOOGLE_API_KEY", "")
+    model   = os.environ.get("GOOGLE_MODEL", "gemini-3.6-flash")
+
+    if not api_key:
+        raise ValueError("GOOGLE_API_KEY not set in .env")
+
+    client = genai.Client(api_key=api_key)
 
     # Read image bytes
     with open(image_path, "rb") as f:
@@ -361,15 +371,29 @@ Rules:
 - transaction_type: use "debit" for payments/purchases, "credit" for received/refunds
 - Do not include any explanation or markdown, just the JSON object."""
 
-    response = client.models.generate_content(
-        model=GOOGLE_MODEL,
-        contents=[
-            types.Part.from_bytes(data=image_data, mime_type=mime_type),
-            prompt,
-        ],
-    )
+    # Retry up to 3 times on 503 (transient overload)
+    last_exc: Exception = RuntimeError("No response")
+    for attempt in range(3):
+        if attempt > 0:
+            time.sleep(3 * attempt)   # 3s, then 6s
+        try:
+            response = client.models.generate_content(
+                model=model,
+                contents=[
+                    types.Part.from_bytes(data=image_data, mime_type=mime_type),
+                    prompt,
+                ],
+            )
+            raw_response = response.text.strip()
+            break   # success — exit retry loop
+        except Exception as exc:
+            last_exc = exc
+            if "503" not in str(exc):
+                raise   # non-transient error — fail immediately
+            logger.warning("Gemini OCR 503 on attempt %d, retrying…", attempt + 1)
+    else:
+        raise last_exc
 
-    raw_response = response.text.strip()
     logger.debug("Gemini Vision raw response: %s", raw_response)
 
     # Strip markdown code fences if present

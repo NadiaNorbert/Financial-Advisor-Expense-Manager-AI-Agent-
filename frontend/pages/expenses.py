@@ -322,5 +322,7 @@ def _add_expense_form() -> None:
         if result.get("success"):
             st.success(f"✅ {merchant} — ₹{amount:,.2f} saved! (ID #{result.get('id', '?')})")
             st.balloons()
+        elif result.get("duplicate"):
+            st.warning(f"⚠️ Duplicate expense — not saved. {result.get('message', '')}")
         else:
             st.error(f"Error: {result.get('message')}")

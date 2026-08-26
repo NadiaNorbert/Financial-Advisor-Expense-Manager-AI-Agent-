@@ -91,23 +91,47 @@ def init_db() -> None:
 # ── CRUD: Expenses ────────────────────────────────────────────────────────────
 
 def add_expense(expense: Expense | dict, user_id: int | None = None) -> int:
-    """Insert a new expense row.
+    """Insert a new expense row, rejecting exact duplicates.
 
-    Parameters
-    ----------
-    expense:
-        An :class:`~backend.models.Expense` instance or a plain dict
-        with the same keys.
-    user_id:
-        The authenticated user's id. Stored on the row for per-user isolation.
+    Duplicate = same user, merchant, amount, and date already exists.
 
     Returns
     -------
     int
         The ``id`` of the newly inserted row.
+
+    Raises
+    ------
+    ValueError
+        If an identical expense already exists for this user.
     """
     if isinstance(expense, dict):
         expense = Expense(**expense)
+
+    # ── Duplicate guard ───────────────────────────────────────────────────
+    with _get_conn() as conn:
+        existing = conn.execute(
+            """
+            SELECT id FROM expenses
+            WHERE merchant = :merchant
+              AND amount   = :amount
+              AND date     = :date
+              AND (user_id = :user_id OR (:user_id IS NULL AND user_id IS NULL))
+            LIMIT 1
+            """,
+            {
+                "merchant": expense.merchant,
+                "amount":   expense.amount,
+                "date":     expense.date,
+                "user_id":  user_id,
+            },
+        ).fetchone()
+
+    if existing:
+        raise ValueError(
+            f"duplicate:Expense already exists (ID #{existing['id']}): "
+            f"{expense.merchant} ₹{expense.amount} on {expense.date}"
+        )
 
     now = datetime.utcnow().isoformat()
     with _get_conn() as conn:

@@ -112,7 +112,6 @@ def generate_financial_advice(
 
 def _generate_llm_advice(summary: dict, guru: str) -> dict:
     """Call the LLM and parse the structured response."""
-    from backend.config import GOOGLE_API_KEY, GOOGLE_MODEL, LLM_PROVIDER
 
     # Build spending context
     total_spending   = summary.get("total_spending", summary.get("total", 0))
@@ -159,11 +158,23 @@ ACTION: <one concrete action they can take this week>
 Keep each section under 60 words. Use ₹ for currency. Be specific to their numbers."""
 
     # Use google-genai directly (avoids LangChain compatibility issues)
-    if LLM_PROVIDER == "google" and GOOGLE_API_KEY:
-        raw = _call_gemini(prompt, GOOGLE_API_KEY, GOOGLE_MODEL)
+    # Re-read from os.environ at call time — module-level constants may be
+    # stale if config was imported before dotenv loaded the .env file.
+    import os
+    from dotenv import load_dotenv
+    from pathlib import Path
+    _root = Path(__file__).resolve().parent.parent.parent
+    load_dotenv(_root / ".env", override=True)
+
+    provider  = os.environ.get("LLM_PROVIDER", "").lower()
+    api_key   = os.environ.get("GOOGLE_API_KEY", "")
+    model     = os.environ.get("GOOGLE_MODEL", "gemini-3.6-flash")
+
+    if provider == "google" and api_key:
+        raw = _call_gemini(prompt, api_key, model)
     else:
         raise EnvironmentError(
-            f"LLM_PROVIDER is '{LLM_PROVIDER}' but no GOOGLE_API_KEY set."
+            f"LLM_PROVIDER='{provider}' GOOGLE_API_KEY={'set' if api_key else 'MISSING'}"
         )
 
     return _parse_llm_response(raw, guru)

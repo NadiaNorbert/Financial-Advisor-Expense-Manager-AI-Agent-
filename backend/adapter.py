@@ -183,16 +183,23 @@ def categorize_expense(merchant: str, amount: float = 0) -> str:
 def add_expense(expense: dict) -> dict:
     """
     Input : frontend expense dict  (uses 'payment' key)
-    Output: {success, id, message}
+    Output: {success, id, message, duplicate (bool)}
     """
     from backend.database import add_expense as _add
     try:
-        db_row   = _frontend_to_db_row(expense)
-        new_id   = _add(db_row, user_id=_get_user_id())
-        return {"success": True, "id": new_id, "message": "Expense saved."}
+        db_row = _frontend_to_db_row(expense)
+        new_id = _add(db_row, user_id=_get_user_id())
+        return {"success": True, "id": new_id, "message": "Expense saved.", "duplicate": False}
+    except ValueError as e:
+        msg = str(e)
+        if msg.startswith("duplicate:"):
+            human = msg[len("duplicate:"):]
+            logger.info("Duplicate expense blocked: %s", human)
+            return {"success": False, "id": None, "message": human, "duplicate": True}
+        return {"success": False, "id": None, "message": msg, "duplicate": False}
     except Exception as e:
         logger.error("add_expense failed: %s", e)
-        return {"success": False, "id": None, "message": str(e)}
+        return {"success": False, "id": None, "message": str(e), "duplicate": False}
 
 
 def update_expense(expense_id: int, updated: dict) -> dict:
