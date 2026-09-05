@@ -1,48 +1,47 @@
-# FinMate AI — Merged requirements
+# FinMate AI — Requirements
 # Compatible with Python 3.11.
+# Uses minimum-version bounds (not exact pins) to let pip resolve freely.
 
 # ── Core framework ────────────────────────────────────────────────
-streamlit==1.40.0
+streamlit>=1.40.0,<2.0.0
 
 # ── Data handling ─────────────────────────────────────────────────
-pandas==2.2.3
-numpy==1.26.4
-pyarrow==16.1.0
+pandas>=2.2.2
+numpy>=1.26.4,<2.0.0
+pyarrow>=16.1.0
 
 # ── Visualisation ─────────────────────────────────────────────────
-plotly==5.22.0
+plotly>=5.22.0
 
-# ── AI / LangChain ────────────────────────────────────────────────
-# langchain-google-genai 4.x uses google-genai SDK natively (no conflict)
-langchain==0.3.25
-langchain-core==0.3.58
-langchain-community==0.3.23
-langchain-google-genai==4.0.0
+# ── Google Gemini SDK ─────────────────────────────────────────────
+# google-genai 2.x is the unified GA SDK; langchain-google-genai 4.x
+# depends on it natively — no google-generativeai conflict.
+google-genai>=2.14.0
 
-# ── Google Gemini SDK (used directly in backend/advisor/advisor.py) ──
-google-genai==2.14.0
-
-# ── Vector store ──────────────────────────────────────────────────
-chromadb==0.5.3
+# ── LangChain ─────────────────────────────────────────────────────
+langchain>=0.3.0
+langchain-core>=0.3.0
+langchain-community>=0.3.0
+langchain-google-genai>=4.0.0
 
 # ── Image / OCR ───────────────────────────────────────────────────
-Pillow==10.4.0
-pytesseract==0.3.10
-opencv-python-headless==4.10.0.84
+Pillow>=10.4.0
+pytesseract>=0.3.10
+opencv-python-headless>=4.10.0.84
 
 # ── PDF processing ────────────────────────────────────────────────
-PyMuPDF==1.24.7
-PyPDF2==3.0.1
+PyMuPDF>=1.24.7
+PyPDF2>=3.0.1
 
 # ── Data validation ───────────────────────────────────────────────
-pydantic==2.7.4
+pydantic>=2.7.4
 
 # ── Environment / secrets ─────────────────────────────────────────
-python-dotenv==1.0.1
+python-dotenv>=1.0.1
 
 # ── HTTP / API clients ────────────────────────────────────────────
-requests==2.32.3
+requests>=2.32.3
 
 # ── Utilities ─────────────────────────────────────────────────────
-python-dateutil==2.9.0.post0
-regex==2024.5.15
+python-dateutil>=2.9.0
+regex>=2024.5.15
