@@ -1,0 +1,38 @@
+# ── Python cache ──────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# ── Virtual environments ──────────────────────────────────────────
+.venv/
+venv/
+env/
+
+# ── Secrets & local config ────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── SQLite databases (ephemeral on Render free tier anyway) ───────
+*.db
+*.sqlite
+*.sqlite3
+
+# ── Test artefacts ────────────────────────────────────────────────
+tests/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ── Editor / OS noise ─────────────────────────────────────────────
+.git/
+.gitignore
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# ── Docs / extras not needed in the image ─────────────────────────
+README.md

@@ -1,6 +1,7 @@
-# FinMate AI - Python dependencies
-# Compatible with Python 3.10
-# Install with: pip install -r requirements.txt
+# FinMate AI — Merged requirements
+# Reconciled from root/requirements.txt and backend/requirements.txt.
+# Where versions conflicted the stricter (backend) pin was kept.
+# Compatible with Python 3.11.
 
 # ── Core framework ────────────────────────────────────────────────
 streamlit==1.40.0
@@ -13,22 +14,34 @@ pyarrow==16.1.0
 # ── Visualisation ─────────────────────────────────────────────────
 plotly==5.22.0
 
-# ── Image handling (for OCR screenshot uploads) ───────────────────
+# ── AI / LangChain ────────────────────────────────────────────────
+langchain==0.2.11
+langchain-core==0.2.23
+langchain-community==0.2.10
+langchain-openai==0.1.17
+langchain-google-genai==1.0.7
+
+# ── Vector store ──────────────────────────────────────────────────
+chromadb==0.5.3
+
+# ── Image / OCR ───────────────────────────────────────────────────
 Pillow==10.4.0
+pytesseract==0.3.10
+opencv-python-headless==4.10.0.84
+
+# ── PDF processing ────────────────────────────────────────────────
+PyMuPDF==1.24.7
+PyPDF2==3.0.1
 
 # ── Data validation ───────────────────────────────────────────────
-pydantic>=2.0.0
+pydantic==2.7.4
 
 # ── Environment / secrets ─────────────────────────────────────────
 python-dotenv==1.0.1
 
-# ── HTTP / API clients (for Splitwise & AI advisor) ──────────────
+# ── HTTP / API clients ────────────────────────────────────────────
 requests==2.32.3
 
-# ── Optional: OpenAI for AI advisor ──────────────────────────────
-# openai>=1.35.0
-
-# ── Optional: OCR backend dependencies ───────────────────────────
-# pytesseract>=0.3.10
-# opencv-python-headless>=4.10.0
-# easyocr>=1.7.1
+# ── Utilities ─────────────────────────────────────────────────────
+python-dateutil==2.9.0.post0
+regex==2024.5.15

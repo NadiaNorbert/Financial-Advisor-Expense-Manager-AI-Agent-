@@ -1,0 +1,35 @@
+# ─────────────────────────────────────────────────────────────────
+# FinMate AI — Render Blueprint (render.yaml)
+# Docs: https://render.com/docs/blueprint-spec
+# ─────────────────────────────────────────────────────────────────
+
+services:
+  - type: web
+    name: finmate-ai
+    env: docker                  # use the Dockerfile, not a native runtime
+    plan: free
+    region: oregon               # free tier is available in oregon & frankfurt
+    healthCheckPath: /           # Streamlit serves its UI at /
+    dockerfilePath: ./Dockerfile  # explicit, though Render auto-detects it
+
+    envVars:
+      # ── AI provider ─────────────────────────────────────────────
+      - key: GOOGLE_API_KEY
+        sync: false              # you set the real value in the Render dashboard
+
+      - key: LLM_PROVIDER
+        value: google            # non-secret; baked in here is fine
+
+      # ── Splitwise integration (optional) ────────────────────────
+      - key: SPLITWISE_API_KEY
+        sync: false
+
+      - key: SPLITWISE_CONSUMER_KEY
+        sync: false
+
+      - key: SPLITWISE_CONSUMER_SECRET
+        sync: false
+
+      # ── Streamlit / app misc ─────────────────────────────────────
+      - key: PYTHONUNBUFFERED
+        value: "1"               # ensures logs stream in real-time in Render
