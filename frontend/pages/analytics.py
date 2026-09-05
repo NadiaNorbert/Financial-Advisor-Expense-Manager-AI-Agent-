@@ -96,12 +96,14 @@ def render() -> None:
             category_donut_chart(by_cat),
             use_container_width=True,
             config={"displayModeBar": False},
+            key="analytics_donut",
         )
     with col2:
         st.plotly_chart(
             category_bar_chart(by_cat),
             use_container_width=True,
             config={"displayModeBar": False},
+            key="analytics_cat_bar",
         )
 
     # ── Spending Trends ───────────────────────────────────────────
@@ -113,12 +115,14 @@ def render() -> None:
             monthly_bar_chart(monthly_trend),
             use_container_width=True,
             config={"displayModeBar": False},
+            key="analytics_monthly_bar",
         )
     with col4:
         st.plotly_chart(
             daily_bar_chart(daily_spend),
             use_container_width=True,
             config={"displayModeBar": False},
+            key="analytics_daily_bar",
         )
 
     # Full trend line
@@ -126,6 +130,7 @@ def render() -> None:
         spending_trend_chart(daily_spend),
         use_container_width=True,
         config={"displayModeBar": False},
+        key="analytics_trend_line",
     )
 
     # ── Category Deep-Dive Table ───────────────────────────────────

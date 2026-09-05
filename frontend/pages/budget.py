@@ -116,6 +116,7 @@ def _budget_overview() -> None:
             budget_vs_spent_chart(active_cats),
             use_container_width=True,
             config={"displayModeBar": False},
+            key="budget_vs_spent",
         )
 
     # ── Categories with no budget ─────────────────────────────────

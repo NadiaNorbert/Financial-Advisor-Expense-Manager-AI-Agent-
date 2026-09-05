@@ -170,6 +170,7 @@ def render() -> None:
             category_donut_chart(by_cat),
             use_container_width=True,
             config={"displayModeBar": False},
+            key="dashboard_donut",
         )
 
     with col_right:
@@ -179,6 +180,7 @@ def render() -> None:
                 monthly_bar_chart(monthly_trend),
                 use_container_width=True,
                 config={"displayModeBar": False},
+                key="dashboard_monthly_bar",
             )
         else:
             st.markdown(
@@ -202,6 +204,7 @@ def render() -> None:
             spending_trend_chart(daily),
             use_container_width=True,
             config={"displayModeBar": False},
+            key="dashboard_trend_line",
         )
 
     # ── Recent transactions ────────────────────────────────────────
