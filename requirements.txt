@@ -1,6 +1,4 @@
 # FinMate AI — Merged requirements
-# Reconciled from root/requirements.txt and backend/requirements.txt.
-# Where versions conflicted the stricter (backend) pin was kept.
 # Compatible with Python 3.11.
 
 # ── Core framework ────────────────────────────────────────────────
@@ -15,13 +13,13 @@ pyarrow==16.1.0
 plotly==5.22.0
 
 # ── AI / LangChain ────────────────────────────────────────────────
-langchain==0.2.11
-langchain-core==0.2.23
-langchain-community==0.2.10
-langchain-openai==0.1.17
-langchain-google-genai==1.0.7
+# langchain-google-genai 4.x uses google-genai SDK natively (no conflict)
+langchain==0.3.25
+langchain-core==0.3.58
+langchain-community==0.3.23
+langchain-google-genai==4.0.0
 
-# ── Google Gemini SDK (used directly in backend/advisor/advisor.py) ───────
+# ── Google Gemini SDK (used directly in backend/advisor/advisor.py) ──
 google-genai==2.14.0
 
 # ── Vector store ──────────────────────────────────────────────────
