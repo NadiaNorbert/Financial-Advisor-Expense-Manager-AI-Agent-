@@ -28,7 +28,7 @@ LLM_PROVIDER: str = os.getenv("LLM_PROVIDER", "openai").lower()
 OPENAI_API_KEY: str | None = os.getenv("OPENAI_API_KEY")
 GOOGLE_API_KEY: str | None = os.getenv("GOOGLE_API_KEY")
 OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-GOOGLE_MODEL: str = os.getenv("GOOGLE_MODEL", "gemini-3.6-flash")
+GOOGLE_MODEL: str = os.getenv("GOOGLE_MODEL", "gemini-2.0-flash")
 
 # ── Database ──────────────────────────────────────────────────────────────────
 DATABASE_PATH: str = os.getenv("DATABASE_PATH", str(_ROOT / "financial_advisor.db"))

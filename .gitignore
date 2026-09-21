@@ -35,6 +35,16 @@ Thumbs.db
 *.swp
 *.swo
 
+# Node / Next.js
+node_modules/
+.next/
+out/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
 # Uploaded files (screenshots processed in-memory; don't persist)
 uploads/
 temp_uploads/

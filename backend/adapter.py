@@ -343,9 +343,33 @@ def get_spending_summary() -> dict:
     from backend.database import get_expenses
 
     try:
+        user_id = _get_user_id()
+        if user_id is None:
+            try:
+                import streamlit as st
+                st_expenses = st.session_state.get("expenses")
+                if st_expenses is not None and len(st_expenses) > 0:
+                    total = sum(float(e.get("amount", 0)) for e in st_expenses)
+                    by_cat_front = {}
+                    for e in st_expenses:
+                        c = _to_frontend_cat(e.get("category", "Others"))
+                        by_cat_front[c] = round(by_cat_front.get(c, 0) + float(e.get("amount", 0)), 2)
+                    top_cat = max(by_cat_front, key=by_cat_front.get) if by_cat_front else "N/A"
+                    return {
+                        "total_spending": round(total, 2),
+                        "monthly_spending": round(total, 2),
+                        "by_category": by_cat_front,
+                        "monthly_trend": [{"month": datetime.date.today().strftime("%Y-%m"), "amount": round(total, 2)}],
+                        "daily_spending": [{"date": datetime.date.today().isoformat(), "amount": round(total, 2)}],
+                        "top_category": top_cat,
+                        "transaction_count": len(st_expenses),
+                    }
+            except Exception:
+                pass
+
         # ── All-time totals ───────────────────────────────────────
-        all_analysis = analyze_spending(user_id=_get_user_id())
-        all_expenses = get_expenses(limit=10_000, user_id=_get_user_id())
+        all_analysis = analyze_spending(user_id=user_id)
+        all_expenses = get_expenses(limit=10_000, user_id=user_id)
 
         if not all_expenses:
             return _empty_summary()
@@ -467,7 +491,50 @@ def calculate_budget() -> dict:
     """
     from backend.budgeting.budget_engine import calculate_budget as _calc
     try:
-        raw = _calc(user_id=_get_user_id())
+        user_id = _get_user_id()
+        if user_id is None:
+            try:
+                import streamlit as st
+                if "budget_settings" in st.session_state or "expenses" in st.session_state:
+                    b_settings = st.session_state.get("budget_settings", {})
+                    st_expenses = st.session_state.get("expenses", [])
+                    income = float(b_settings.get("income", 0.0))
+                    budgets = b_settings.get("budgets", {})
+
+                    cat_spent: dict[str, float] = {}
+                    for e in st_expenses:
+                        c = _to_frontend_cat(e.get("category", "Others"))
+                        cat_spent[c] = cat_spent.get(c, 0.0) + float(e.get("amount", 0))
+
+                    total_budget = sum(float(v) for v in budgets.values())
+                    total_spent = sum(cat_spent.values())
+
+                    rows = []
+                    for cat in CATEGORIES:
+                        b = float(budgets.get(cat, 0.0))
+                        s = float(cat_spent.get(cat, 0.0))
+                        pct = round(s / b * 100, 1) if b > 0 else 0.0
+                        rows.append({
+                            "category": cat,
+                            "budget": round(b, 2),
+                            "spent": round(s, 2),
+                            "remaining": round(b - s, 2),
+                            "pct": pct,
+                            "over_budget": s > b and b > 0,
+                        })
+
+                    return {
+                        "income": income,
+                        "total_budget": round(total_budget, 2),
+                        "total_spent": round(total_spent, 2),
+                        "remaining": round(total_budget - total_spent, 2),
+                        "savings_estimate": round(income - total_spent, 2),
+                        "by_category": rows,
+                    }
+            except Exception:
+                pass
+
+        raw = _calc(user_id=user_id)
         translated_rows = []
         merged: dict[str, dict] = {}
 

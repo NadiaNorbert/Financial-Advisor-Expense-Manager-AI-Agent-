@@ -17,7 +17,9 @@ from __future__ import annotations
 import base64
 import json
 import logging
+import os
 import re
+import shutil
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -33,8 +35,19 @@ try:
     import cv2
     import numpy as np
 
-    if TESSERACT_PATH:
+    if TESSERACT_PATH and Path(TESSERACT_PATH).exists():
         pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
+    elif shutil.which("tesseract"):
+        pass
+    else:
+        for p in [
+            r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+            r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe",
+            os.path.expandvars(r"%LOCALAPPDATA%\Programs\Tesseract-OCR\tesseract.exe"),
+        ]:
+            if Path(p).exists():
+                pytesseract.pytesseract.tesseract_cmd = p
+                break
 
     _TESSERACT_AVAILABLE = True
 except ImportError:
@@ -47,10 +60,18 @@ except ImportError:
 # ── Check Gemini Vision availability ──────────────────────────────────────────
 def _gemini_ocr_available() -> bool:
     try:
-        from backend.config import GOOGLE_API_KEY, LLM_PROVIDER
-        if not (bool(GOOGLE_API_KEY) and LLM_PROVIDER == "google"):
+        import os
+        from dotenv import load_dotenv
+        from pathlib import Path
+        _root = Path(__file__).resolve().parent.parent.parent
+        load_dotenv(_root / ".env", override=True)
+        api_key = os.environ.get("GOOGLE_API_KEY", "")
+        if not api_key:
+            from backend.config import GOOGLE_API_KEY
+            api_key = GOOGLE_API_KEY or ""
+        if not api_key:
             return False
-        # Also verify the google-genai package is actually installed
+        # Verify the google-genai package is installed
         import importlib
         importlib.import_module("google.genai")
         return True
@@ -335,7 +356,7 @@ def _gemini_vision_ocr(image_path: Path) -> dict:
     # Re-read credentials fresh (module-level constants may be stale in Streamlit)
     load_dotenv(Path(__file__).resolve().parent.parent.parent / ".env", override=True)
     api_key = os.environ.get("GOOGLE_API_KEY", "")
-    model   = os.environ.get("GOOGLE_MODEL", "gemini-3.6-flash")
+    model   = os.environ.get("GOOGLE_MODEL", "gemini-2.0-flash")
 
     if not api_key:
         raise ValueError("GOOGLE_API_KEY not set in .env")
